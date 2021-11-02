@@ -1,0 +1,11 @@
+click~=7.1.2
+Flask~=1.1.2
+itsdangerous~=1.1.0
+Jinja2~=2.11.3
+MarkupSafe~=1.1.1
+Werkzeug~=1.0.1
+pip~=21.2.4
+toml~=0.10.2
+wheel~=0.37.0
+setuptools~=57.4.0
+requests~=2.26.0
