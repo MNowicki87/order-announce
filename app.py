@@ -1,19 +1,20 @@
-import os, sys
+import os
 import signal
+import sys
 import time
 
+import flask
 import requests
 from flask import Flask
 
-app = Flask(__name__)
+import shoper_rest_client as sc
+
 PORT = 5421
+app = Flask(__name__)
 
 
 def start_tunnel(port: int) -> None:
     os.system(f'ngrok http -bind-tls=true {port} > /dev/null &')
-
-
-start_tunnel(PORT)
 
 
 def get_public_url():
@@ -22,27 +23,27 @@ def get_public_url():
     return response.json()['tunnels'][0]['public_url']
 
 
-url = get_public_url()
-
-print(f'Tunnel URL: {url}')
-
-
-def signal_handler(sig, frame):
+def close_app(*args):
     print('\nClosing tunnel...')
     os.system('killall ngrok')
     print('Goodbye!')
     sys.exit(0)
 
 
-signal.signal(signal.SIGINT, signal_handler)
+@app.route("/", methods=['POST'])
+def webhook_receive():
+    print("I've got something!")
+    return flask.Response(status=200)
 
 
-@app.route("/")
-def hello_world():
-    return '<p>OK!</p>'
+def main():
+    start_tunnel(PORT)
+    signal.signal(signal.SIGINT, close_app)
+    sc.start()
+    sc.update_webhook_url(get_public_url())
 
 
 if __name__ == "__main__":
     from waitress import serve
-
+    main()
     serve(app, host="0.0.0.0", port=PORT)
