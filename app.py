@@ -25,8 +25,12 @@ def start_tunnel(port: int) -> None:
 
 def get_public_url():
     print('Getting public URL')
-    time.sleep(5)
-    response = requests.get('http://localhost:4040/api/tunnels')
+    time.sleep(2)
+    try:
+        response = requests.get('http://localhost:4040/api/tunnels')
+    except ConnectionError:
+        time.sleep(1)
+        return get_public_url()
     return response.json()['tunnels'][0]['public_url']
 
 
