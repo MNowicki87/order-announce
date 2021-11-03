@@ -6,12 +6,14 @@ import time
 import flask
 import requests
 from dotenv import load_dotenv
-from flask import Flask
+from flask import Flask, request
 
 import shoper_rest_client as sc
+from request_handler import RequestHandler
 
 PORT = 5421
 app = Flask(__name__)
+handler = RequestHandler()
 
 
 def start_tunnel(port: int) -> None:
@@ -38,7 +40,11 @@ def close_app(*args):
 @app.route("/", methods=['POST'])
 def webhook_receive():
     print("I've got something!")
-    return flask.Response(status=200)
+    if handler.validate(request):
+        handler.process_request(request)
+        return flask.Response(status=200)
+
+    return flask.Response(status=401)
 
 
 def main():

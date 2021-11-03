@@ -136,3 +136,4 @@ cython_debug/
 *.iml
 .idea/
 *.env
+*.mp3
