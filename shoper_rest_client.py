@@ -29,6 +29,7 @@ def update_headers():
 
 
 def update_webhook_url(url: str):
+    print(f'Updating Webhook url to: {url}')
     body = '{"url": "%s"}' % url
     with requests.put(webhook_url, data=body, headers=headers) as response:
         if response.status_code != 200:

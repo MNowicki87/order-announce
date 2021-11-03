@@ -5,6 +5,7 @@ import time
 
 import flask
 import requests
+from dotenv import load_dotenv
 from flask import Flask
 
 import shoper_rest_client as sc
@@ -14,11 +15,15 @@ app = Flask(__name__)
 
 
 def start_tunnel(port: int) -> None:
-    os.system(f'ngrok http -bind-tls=true {port} > /dev/null &')
+    print('Opening tunnel')
+    load_dotenv()
+    ngrok = os.environ.get('NGROK')
+    os.system(f'{ngrok} http -bind-tls=true {port} > /dev/null &')
 
 
 def get_public_url():
-    time.sleep(2)
+    print('Getting public URL')
+    time.sleep(5)
     response = requests.get('http://localhost:4040/api/tunnels')
     return response.json()['tunnels'][0]['public_url']
 
@@ -41,9 +46,11 @@ def main():
     signal.signal(signal.SIGINT, close_app)
     sc.start()
     sc.update_webhook_url(get_public_url())
+    print('Runnning...')
 
 
 if __name__ == "__main__":
     from waitress import serve
+
     main()
     serve(app, host="0.0.0.0", port=PORT)
