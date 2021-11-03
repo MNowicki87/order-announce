@@ -1,11 +1,15 @@
 import hashlib
+import os
 from os import environ
-import subprocess
 
 from dotenv import load_dotenv
 from flask import Request
 
-
+SOUNDS = {
+    'order.create': 'order.mp3',
+    'order.status': 'order.mp3',
+    'order.paid': 'payment.mp3'
+}
 
 class RequestHandler:
     def __init__(self):
@@ -23,4 +27,4 @@ class RequestHandler:
     @staticmethod
     def process_request(req: Request):
         event = req.headers.environ.get('HTTP_X_WEBHOOK_NAME')
-        subprocess.run(['omxplayer sound.mp3', "-c"])
+        os.system(f'omxplayer {SOUNDS[event]}')
