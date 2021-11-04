@@ -1,7 +1,7 @@
 import hashlib
-import os
 from os import environ
 
+import pygame
 from dotenv import load_dotenv
 from flask import Request
 
@@ -26,7 +26,15 @@ class RequestHandler:
         checksum = hashlib.sha1(f'{webhook_id}:{self._secret}:{webhook_data}'.encode('utf-8'))
         return True if checksum.hexdigest() == webhook_sha else False
 
-    @staticmethod
-    def process_request(req: Request):
+    # @staticmethod
+    def process_request(self, req: Request):
         event = req.headers.environ.get('HTTP_X_WEBHOOK_NAME')
-        os.system(f'omxplayer {SOUNDS[event]}')
+        # os.system(f'omxplayer {SOUNDS[event]}')
+        self.play_sound(event)
+
+    def play_sound(self, event):
+        pygame.mixer.init()
+        pygame.mixer.music.load(SOUNDS[event])
+        pygame.mixer.music.play()
+        while pygame.mixer.music.get_busy():
+            continue
