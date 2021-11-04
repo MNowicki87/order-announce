@@ -19,7 +19,7 @@ After a webhook is received it validates the Shoper webhook secret and plays a s
 
 - **RPi Zero W**
 - **_Mini-HDMI_** to _**VGA + 3 mm audio jack**_ adapter
-- an **external speaker** connected via a 3mm jack to the adapter
+- an **external speaker** connected via a 3 mm jack to the adapter
 
 *The app is developed to work on an RPi Zero W with a speaker connected to HDMI port.  
 It should run just as well on any other machine, although some tweaks may be required*
@@ -70,14 +70,17 @@ It should run just as well on any other machine, although some tweaks may be req
     1. create a service config file in `/etc/systemd/system/{my_project}.service`:
        ```
        [Unit]
-       Description=My Project
+       Description=Shoper Order Announcer
        After=network.target
     
        [Service]
-       WorkingDirectory=/home/pi/project/
-       ExecStart=/usr/bin/python /home/pi/project/script.py
+       ExecStart=/home/pi/order-announce/venv/bin/python3 -u /home/pi/order-announce/app.py
+       WorkingDirectory=/home/pi/order-announce
+       StandardOutput=inherit
+       StandardError=inherit
        Restart=always
-       
+       User=pi
+    
        [Install]
        WantedBy=multi-user.target
        ```
@@ -102,6 +105,5 @@ It should run just as well on any other machine, although some tweaks may be req
 
 ### Plans for further development:
 
-- Play different sound for `order.create` and `order.paid`
 - After the valid webhook is received, some details (e.g. clients name, total amount, etc.) can be announced with TTS
 - Show order statistics from past week/month on an external display

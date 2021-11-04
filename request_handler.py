@@ -7,15 +7,17 @@ from flask import Request
 
 SOUNDS = {
     'order.create': 'order.mp3',
-    'order.status': 'order.mp3',
-    'order.paid': 'payment.mp3'
+    'order.paid': 'payment.mp3',
+    # 'order.status': 'order.mp3', # For testing purposes
 }
+
 
 class RequestHandler:
     def __init__(self):
         load_dotenv()
         self._secret = environ.get('SHOPER_WEBHOOK_SECRET')
 
+    # noinspection InsecureHash
     def validate(self, req: Request) -> bool:
         headers = req.headers.environ
         webhook_id = headers.get('HTTP_X_WEBHOOK_ID')

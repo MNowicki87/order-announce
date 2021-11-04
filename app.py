@@ -17,6 +17,12 @@ handler = RequestHandler()
 
 
 def start_tunnel(port: int) -> None:
+    """
+    Starts ngrok.
+    A command to run ngrok must be passed as ENV var. I couldn't get it to run with command alias on RPi.
+
+    :param port: port number for the tunnel to be opened - same as Flask APP
+    """
     print('Opening tunnel')
     load_dotenv()
     ngrok = os.environ.get('NGROK')
