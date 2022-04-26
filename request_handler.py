@@ -26,13 +26,12 @@ class RequestHandler:
         checksum = hashlib.sha1(f'{webhook_id}:{self._secret}:{webhook_data}'.encode('utf-8'))
         return True if checksum.hexdigest() == webhook_sha else False
 
-    # @staticmethod
     def process_request(self, req: Request):
         event = req.headers.environ.get('HTTP_X_WEBHOOK_NAME')
-        # os.system(f'omxplayer {SOUNDS[event]}')
         self.play_sound(event)
 
-    def play_sound(self, event):
+    @staticmethod
+    def play_sound(event):
         pygame.mixer.init()
         pygame.mixer.music.load(SOUNDS[event])
         pygame.mixer.music.play()
