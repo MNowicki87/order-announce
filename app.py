@@ -73,6 +73,7 @@ def main():
     currency_scheduler = CurrencyCheckScheduler(currency_service)
     currency_scheduler.schedule_jobs()
     notifier.speak('Monitorowanie kursów walut uruchomione!')
+    notifier.push('Monitor kursu walut', 'Monitorowanie kursów walut uruchomione!')
 
 
 if __name__ == "__main__":
