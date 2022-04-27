@@ -2,7 +2,7 @@ import os
 from datetime import datetime
 from time import sleep
 
-import pygame
+import pygame.mixer
 from gtts import gTTS
 
 

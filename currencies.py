@@ -16,7 +16,7 @@ class CurrencyApiClient:
         dotenv.load_dotenv()
         self.url: str = environ.get('CURRENCY_API_URL')
 
-    def update_currency_rates(self) -> dict[str, float]:
+    def update_currency_rates(self) -> dict:
         response = requests.get(self.url)
         if response.status_code != 200:
             raise Exception('Error: API request failed')
@@ -70,6 +70,10 @@ class CurrencyService:
         sleep(120)
         return self.compare_exchange_rates()
 
+    def init_values(self):
+        self.notifier.speak(f'Kurs w sklepie: {shoper.get_exchange_rate():.2f} zł')
+        self.notifier.speak(f'Kurs globalny: {self.get_exchange_rate("EUR", "PLN"):.2f} zł')
+
 
 class CurrencyCheckScheduler:
     def __init__(self, currency_service: CurrencyService):
@@ -81,6 +85,7 @@ class CurrencyCheckScheduler:
             }, timezone='Europe/Warsaw')
         self._service.update()
         self._service.compare_exchange_rates()
+        self._service.init_values()
 
     def schedule_jobs(self):
         self._scheduler.add_job(self._service.update, trigger='cron', hour='9-22')
