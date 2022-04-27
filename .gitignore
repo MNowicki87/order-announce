@@ -137,3 +137,5 @@ cython_debug/
 .idea/
 *.env
 *.mp3
+
+test_request_handler.py
