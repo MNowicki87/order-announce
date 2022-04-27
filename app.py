@@ -9,6 +9,8 @@ from dotenv import load_dotenv
 from flask import Flask, request
 
 import shoper_rest_client as sc
+from currencies import CurrencyCheckScheduler, CurrencyService
+from notification_service import NotificationService
 from request_handler import RequestHandler
 
 PORT = 5421
@@ -58,11 +60,19 @@ def webhook_receive():
 
 
 def main():
+    notifier = NotificationService()
+    notifier.speak('Dzień dobry!')
+
     start_tunnel(PORT)
     signal.signal(signal.SIGINT, close_app)
     sc.start()
     sc.update_webhook_url(get_public_url())
-    print('Runnning...')
+    notifier.speak('Tunnel otwarty!')
+
+    currency_service = CurrencyService()
+    currency_scheduler = CurrencyCheckScheduler(currency_service)
+    currency_scheduler.schedule_jobs()
+    notifier.speak('Monitorowanie kursów walut uruchomione!')
 
 
 if __name__ == "__main__":

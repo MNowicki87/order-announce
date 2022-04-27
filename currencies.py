@@ -1,3 +1,4 @@
+from math import floor
 from time import sleep
 
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -52,30 +53,36 @@ class CurrencyService:
     def compare_exchange_rates(self) -> None:
         shoper_rate = shoper.get_exchange_rate()
         cc_rate = self.get_exchange_rate('EUR', 'PLN')
+        ints = int(floor(cc_rate))
+        decimals = int(round((cc_rate - ints) * 100))
         markup = (shoper_rate / cc_rate - 1) * 100
         if self.MIN_MARKUP <= markup <= self.MAX_MARKUP:
-            print(f'Markup OK: {markup:.2f}%')
-            self.notifier.notify('rate.low')
             return
         elif markup < self.MIN_MARKUP:
             print(f'Markup too low: {markup:.2f}%')
+            self.notifier.notify('rate.low')
+            self.notifier.speak(f'Euro po {ints} {decimals}; Podnieś kurs w sklepie')
         else:
             print(f'Markup too high: {markup:.2f}%')
             self.notifier.notify('rate.high')
-            sleep(60)
-            return self.compare_exchange_rates()
+            self.notifier.speak(f'Euro po {ints} {decimals}; Obniż kurs w sklepie')
+
+        sleep(120)
+        return self.compare_exchange_rates()
 
 
 class CurrencyCheckScheduler:
-    def __init__(self):
-        self.service = CurrencyService()
-        self.scheduler = BackgroundScheduler(
+    def __init__(self, currency_service: CurrencyService):
+        self._service = currency_service
+        self._scheduler = BackgroundScheduler(
             job_defaults={
                 'misfire_grace_time': 60,
                 'coalesce': True
             }, timezone='Europe/Warsaw')
+        self._service.update()
+        self._service.compare_exchange_rates()
 
     def schedule_jobs(self):
-        self.scheduler.add_job(self.service.update(), trigger='cron', hour='9-22')
-        self.scheduler.add_job(self.service.compare_exchange_rates(), trigger='cron', hour='9-22', minute='1')
-        self.scheduler.start()
+        self._scheduler.add_job(self._service.update(), trigger='cron', hour='9-22')
+        self._scheduler.add_job(self._service.compare_exchange_rates(), trigger='cron', hour='9-22', minute='15')
+        self._scheduler.start()

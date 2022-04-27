@@ -10,7 +10,8 @@ from notification_service import NotificationService
 class RequestHandler:
     _EVENTS = (
         'order.create',
-        'order.paid'
+        'order.paid',
+        'order.status',
     )
 
     def __init__(self):
