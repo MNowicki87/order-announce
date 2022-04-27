@@ -36,5 +36,12 @@ def update_webhook_url(url: str):
             print('Something went wrong, close app and debug')
 
 
+def get_exchange_rate() -> float:
+    with requests.get(f'{REST_URL}currencies/3', headers=headers) as response:
+        if response.status_code != 200:
+            print('Something went wrong, close app and debug')
+    return float(response.json()['rate'])
+
+
 def start():
     update_headers()

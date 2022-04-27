@@ -1,21 +1,22 @@
 import hashlib
 from os import environ
 
-import pygame
 from dotenv import load_dotenv
 from flask import Request
 
-SOUNDS = {
-    'order.create': 'order.mp3',
-    'order.paid': 'payment.mp3',
-    # 'order.status': 'order.mp3', # For testing purposes
-}
+from notification_service import NotificationService
 
 
 class RequestHandler:
+    _EVENTS = (
+        'order.create',
+        'order.paid'
+    )
+
     def __init__(self):
         load_dotenv()
         self._secret = environ.get('SHOPER_WEBHOOK_SECRET')
+        self.notifier = NotificationService()
 
     # noinspection InsecureHash
     def validate(self, req: Request) -> bool:
@@ -28,12 +29,5 @@ class RequestHandler:
 
     def process_request(self, req: Request):
         event = req.headers.environ.get('HTTP_X_WEBHOOK_NAME')
-        self.play_sound(event)
-
-    @staticmethod
-    def play_sound(event):
-        pygame.mixer.init()
-        pygame.mixer.music.load(SOUNDS[event])
-        pygame.mixer.music.play()
-        while pygame.mixer.music.get_busy():
-            continue
+        if event in self._EVENTS:
+            self.notifier.notify(event)
