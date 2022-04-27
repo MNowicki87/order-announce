@@ -83,6 +83,6 @@ class CurrencyCheckScheduler:
         self._service.compare_exchange_rates()
 
     def schedule_jobs(self):
-        self._scheduler.add_job(self._service.update(), trigger='cron', hour='9-22')
-        self._scheduler.add_job(self._service.compare_exchange_rates(), trigger='cron', hour='9-22', minute='15')
+        self._scheduler.add_job(self._service.update, trigger='cron', hour='9-22')
+        self._scheduler.add_job(self._service.compare_exchange_rates, trigger='cron', hour='9-22', minute='15')
         self._scheduler.start()

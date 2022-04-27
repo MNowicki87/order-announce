@@ -67,7 +67,7 @@ def main():
     signal.signal(signal.SIGINT, close_app)
     sc.start()
     sc.update_webhook_url(get_public_url())
-    notifier.speak('Tunnel otwarty!')
+    notifier.speak('Tunel otwarty!')
 
     currency_service = CurrencyService()
     currency_scheduler = CurrencyCheckScheduler(currency_service)
