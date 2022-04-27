@@ -1,11 +1,10 @@
 from math import floor
+from os import environ
 from time import sleep
 
-from apscheduler.schedulers.background import BackgroundScheduler
-import requests
 import dotenv
-from os import environ
-
+import requests
+from apscheduler.schedulers.background import BackgroundScheduler
 
 import shoper_rest_client as shoper
 from notification_service import NotificationService
@@ -32,6 +31,7 @@ class CurrencyService:
         dotenv.load_dotenv()
         self.MIN_MARKUP = int(environ.get('MIN_MARKUP'))
         self.MAX_MARKUP = int(environ.get('MAX_MARKUP'))
+        self.attention_counter = 0
 
     def _get_rate(self, currency_code: str) -> float:
         try:
@@ -66,6 +66,14 @@ class CurrencyService:
             print(f'Markup too high: {markup:.2f}%')
             self.notifier.notify('rate.high')
             self.notifier.speak(f'Euro po {ints} {decimals}; Obniż kurs w sklepie')
+
+        self.attention_counter += 1
+        if self.attention_counter > 1:
+            self.notifier.push('Zmień KURS W SKLEPIE',
+                               f'Kurs euro: {self.get_exchange_rate("EUR", "PLN"):.4f} zł\n'
+                               f'Kurs w sklepie: {shoper_rate:.4f} zł\n'
+                               f'Prawidłowy kurs:'
+                               f'{self.get_exchange_rate("EUR", "PLN") * (1 + self.MIN_MARKUP / 100):.4f} zł')
 
         sleep(120)
         return self.compare_exchange_rates()

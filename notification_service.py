@@ -4,6 +4,9 @@ from time import sleep
 
 import pygame.mixer
 from gtts import gTTS
+from pushbullet import Pushbullet
+from pushbullet.errors import PushError
+from dotenv import load_dotenv
 
 
 class NotificationService:
@@ -14,6 +17,11 @@ class NotificationService:
         'rate.high': 'chime.mp3',
         'rate.low': 'chime.mp3',
     }
+
+    def __init__(self):
+        load_dotenv()
+        api_key = os.environ.get('PUSHBULLET_API_KEY')
+        self.pb = Pushbullet(api_key)
 
     def notify(self, event):
         self._play_sound(self.SOUNDS[event])
@@ -34,3 +42,9 @@ class NotificationService:
         tts.save(file)
         self._play_sound(file)
         os.remove(file)
+
+    def push(self, title, body):
+        try:
+            self.pb.push_note(title, body)
+        except PushError:
+            self.speak(f'Błąd wysyłania powiadomienia: {title}')
