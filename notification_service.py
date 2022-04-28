@@ -3,10 +3,10 @@ from datetime import datetime
 from time import sleep
 
 import pygame.mixer
+from dotenv import load_dotenv
 from gtts import gTTS
 from pushbullet import Pushbullet
-from pushbullet.errors import PushError
-from dotenv import load_dotenv
+from pushbullet.errors import PushError, PushbulletError
 
 
 class NotificationService:
@@ -22,6 +22,8 @@ class NotificationService:
         load_dotenv()
         api_key = os.environ.get('PUSHBULLET_API_KEY')
         self.pb = Pushbullet(api_key)
+        self.pb_device = self.pb.devices[0]
+        self.phone_number = os.environ.get('PHONE_NUMBER')
 
     def notify(self, event):
         self._play_sound(self.SOUNDS[event])
@@ -48,3 +50,9 @@ class NotificationService:
             self.pb.push_note(title, body)
         except PushError:
             self.speak(f'Błąd wysyłania powiadomienia: {title}')
+
+    def send_sms(self, message):
+        try:
+            self.pb.push_sms(self.pb_device, self.phone_number, message)
+        except PushbulletError:
+            self.speak('Błąd wysyłania SMS')

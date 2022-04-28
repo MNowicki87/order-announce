@@ -69,11 +69,21 @@ class CurrencyService:
 
         self.attention_counter += 1
         if self.attention_counter > 1:
-            self.notifier.push('Zmień KURS W SKLEPIE',
-                               f'Kurs euro: {self.get_exchange_rate("EUR", "PLN"):.4f} zł\n'
-                               f'Kurs w sklepie: {shoper_rate:.4f} zł\n'
-                               f'Prawidłowy kurs:'
-                               f'{self.get_exchange_rate("EUR", "PLN") * (1 + self.MIN_MARKUP / 100):.4f} zł')
+            self.notifier.push(
+                'Zmień KURS W SKLEPIE',
+                f'Kurs euro: {self.get_exchange_rate("EUR", "PLN"):.4f} zł\n'
+                f'Kurs w sklepie: {shoper_rate:.4f} zł\n'
+                f'Prawidłowy kurs:'
+                f'{self.get_exchange_rate("EUR", "PLN") * (1 + self.MIN_MARKUP / 100):.4f} zł'
+            )
+
+        if self.attention_counter > 2:
+            self.notifier.send_sms(
+                f'Kurs euro: {self.get_exchange_rate("EUR", "PLN"):.4f} zł\n'
+                f'Kurs w sklepie: {shoper_rate:.4f} zł\n'
+                f'Prawidłowy kurs:'
+                f'{self.get_exchange_rate("EUR", "PLN") * (1 + self.MAX_MARKUP / 100):.4f} zł'
+            )
 
         sleep(120)
         return self.compare_exchange_rates()
