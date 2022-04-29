@@ -52,6 +52,7 @@ class CurrencyService:
 
     def compare_exchange_rates(self) -> None:
         shoper_rate = shoper.get_exchange_rate()
+        global_rate = self.get_exchange_rate("EUR", "PLN")
         cc_rate = self.get_exchange_rate('EUR', 'PLN')
         ints = int(floor(cc_rate))
         decimals = int(round((cc_rate - ints) * 100))
@@ -61,29 +62,21 @@ class CurrencyService:
         elif markup < self.MIN_MARKUP:
             print(f'Markup too low: {markup:.2f}%')
             self.notifier.notify('rate.low')
-            self.notifier.speak(f'Euro po {ints} {decimals}; Podnieś kurs w sklepie')
+            self.notifier.speak(f'Euro po {ints},{decimals} zł. Podnieś kurs w sklepie!')
         else:
             print(f'Markup too high: {markup:.2f}%')
             self.notifier.notify('rate.high')
-            self.notifier.speak(f'Euro po {ints} {decimals}; Obniż kurs w sklepie')
+            self.notifier.speak(f'Euro po {ints},{decimals} zł. Obniż kurs w sklepie!')
 
         self.attention_counter += 1
         if self.attention_counter > 1:
-            self.notifier.push(
-                'Zmień KURS W SKLEPIE',
-                f'Kurs euro: {self.get_exchange_rate("EUR", "PLN"):.4f} zł\n'
-                f'Kurs w sklepie: {shoper_rate:.4f} zł\n'
-                f'Prawidłowy kurs:'
-                f'{self.get_exchange_rate("EUR", "PLN") * (1 + self.MIN_MARKUP / 100):.4f} zł'
-            )
+            correct_markup = self.get_exchange_rate("EUR", "PLN") * (1 + (self.MIN_MARKUP + self.MAX_MARKUP)/2) / 100
+            message = f'Kurs euro: {global_rate:.4f} zł\n'\
+                      f'Kurs w sklepie: {shoper_rate:.4f} zł\n'\
+                      f'Prawidłowy kurs: {correct_markup:.4f} zł'
 
-        if self.attention_counter > 2:
-            self.notifier.send_sms(
-                f'Kurs euro: {self.get_exchange_rate("EUR", "PLN"):.4f} zł\n'
-                f'Kurs w sklepie: {shoper_rate:.4f} zł\n'
-                f'Prawidłowy kurs:'
-                f'{self.get_exchange_rate("EUR", "PLN") * (1 + self.MAX_MARKUP / 100):.4f} zł'
-            )
+            self.notifier.push('Zmień KURS W SKLEPIE', message)
+            self.notifier.send_sms(message)
 
         sleep(120)
         return self.compare_exchange_rates()
